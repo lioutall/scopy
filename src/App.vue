@@ -3,6 +3,7 @@ import HelloWorld from './components/HelloWorld.vue'
 import {ref} from 'vue'
 import {onMounted} from 'vue'
 import axios from 'axios'
+import { Notify } from 'quasar'
 
 const arr = ref([])
 const toSend = ref('')
@@ -30,9 +31,10 @@ const save = ()=>{
       .then(response => {
         if (response.data.success == true) {
           reloadW()
+          toSend.value=''
         }
       })
-      .catch(function (error) { // 请求失败处理
+      .catch(function (error) {
         console.log(error);
       });
 }
@@ -44,15 +46,15 @@ const handleCopy = (e: ClipboardEvent) => {
     e.preventDefault();
     // removeEventListener 要传入第二个参数
     document.removeEventListener('copy', handleCopy);
-    this.$notify({
-      title:'成功',
-      message:'...成功',
-      type:'seccess',
-      duration:2000
+    Notify.create({
+      message: '复制成功',
+      position: "center",
+      timeout: 2000
     })
+
 };
 
-const cp = (event) => {
+const cp = (event: any) => {
     chooseStr.value = event.currentTarget.innerText;
     document.addEventListener('copy', handleCopy);
     document.execCommand('copy');
@@ -61,22 +63,34 @@ const cp = (event) => {
 </script>
 
 <template>
-  <div>
-    <ul v-for="item in arr">
-      <li v-on:click="cp($event)">{{item.context}}</li>
-    </ul>
+<div class="q-pa-md">
+  <div class="column" v-for="item in arr">
+      <div class="col" v-on:dblclick="cp($event)">
+        {{(item as any).context}}
+      </div>
   </div>
-  
-  <div>
-    <input type="textarea" v-model="toSend">
-    <button v-on:click="save">提交</button>
+
+
+  <div class="row">
+    <div class="col-10">
+      <q-input v-model="toSend" filled type="textarea" bg-color="orange" rows="2"/>
+    </div>
+    <div class="col" align="left" style="padding: 10px;">
+      <q-btn color="primary" label="保存" @click="save"/>
+      <q-btn round color="secondary" icon="navigation" @click="reloadW"/>
+    </div>
+    
   </div>
+</div>
 </template>
 
-<style scoped>
-.list {
-  height: 200px;
-  overflow-y: auto;
-  background: #12312j;
-}
+<style lang="sass" scoped>
+.column > div
+  padding: 5px 5px
+  background: rgba(86, 61, 124, .15)
+  border: 1px solid rgba(86, 61, 124, .2)
+  margin-top: 0.5rem
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
 </style>

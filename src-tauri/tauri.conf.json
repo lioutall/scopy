@@ -11,7 +11,12 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "all": true,
+      "http": {
+        "all": true,
+        "request": true,
+        "scope": ["http://tollge.cn/api/*"]
+      }
     },
     "bundle": {
       "active": true,
@@ -28,7 +33,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.tauri.scopy",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -47,7 +52,7 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": "base-uri 'http://tollge.cn'"
     },
     "updater": {
       "active": false
@@ -55,10 +60,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 800,
         "resizable": true,
         "title": "scopy",
-        "width": 800
+        "width": 1000
       }
     ]
   }
