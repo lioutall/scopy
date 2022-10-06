@@ -2,62 +2,55 @@
 import HelloWorld from './components/HelloWorld.vue'
 import {ref} from 'vue'
 import {onMounted} from 'vue'
-import axios from 'axios'
 import { Notify } from 'quasar'
+import { writeText } from '@tauri-apps/api/clipboard';
+import { getClient, Body, ResponseType } from '@tauri-apps/api/http';
+
+
 
 const arr = ref([])
 const toSend = ref('')
-const chooseStr = ref('')
 
 onMounted(()=>{
   reloadW()
 })
 
-const reloadW = ()=>{
-  axios.get("/api/list")
-    .then((response) => {
-      if (response.data.success == true) {
-        arr.value = response.data.data
-      }
-  })
+const reloadW =async ()=>{
+  const client = await getClient();
+  const response = await client.get('http://', {
+    timeout: 30,
+    // the expected response type
+    responseType: ResponseType.JSON
+  });
+  
+  if ((response.data as any).success == true) {
+        arr.value = (response.data as any).data
+  }
 }
 
-const save = ()=>{
-  axios
-      .post('/api/copy', {
-        context: toSend.value,
-        terminal: '1'
-      })
-      .then(response => {
-        if (response.data.success == true) {
-          reloadW()
-          toSend.value=''
-        }
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+const save =async ()=>{
+
+  const client = await getClient();
+  const response = await client.post('http://', 
+    Body.json({
+        "context": toSend.value,
+        "terminal": '1'        
+    }));
+
+  if ((response.data as any).success == true) {
+    reloadW()
+    toSend.value=''
+  }
 }
 
 
-const handleCopy = (e: ClipboardEvent) => {
-    // clipboardData 可能是 null
-    e.clipboardData && e.clipboardData.setData('text/plain', chooseStr.value);
-    e.preventDefault();
-    // removeEventListener 要传入第二个参数
-    document.removeEventListener('copy', handleCopy);
+const cp =async (event: any) => {
+    await writeText(event.currentTarget.innerText);
     Notify.create({
       message: '复制成功',
       position: "center",
       timeout: 2000
     })
-
-};
-
-const cp = (event: any) => {
-    chooseStr.value = event.currentTarget.innerText;
-    document.addEventListener('copy', handleCopy);
-    document.execCommand('copy');
 };
 
 </script>

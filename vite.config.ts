@@ -10,16 +10,7 @@ export default defineConfig({
   }),
   quasar({
     sassVariables: 'src/quasar-variables.sass'
-  })],
-  server: {
-    port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8888/',
-        changeOrigin: true
-      }
-    }
-  }
+  })]
 })
 
 
